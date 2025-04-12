@@ -8,15 +8,10 @@ function asyncHandler(cb) {
     try {
       await cb(req, res, next)
     } catch (error) {
-      // Forward error to the global error handler
-      const err = new Error('Sorry, the book you are looking for does not exist.');
-      err.status = 404;
-      console.log(err);
       next(err);
     }
   }
 }
-
 
 
 /* GET books listing. */
@@ -41,11 +36,11 @@ router.post('/books/new', asyncHandler(async (req, res) => {
   let book;
   try {
     book = await Book.create(req.body);
-    res.redirect('/');
+    res.redirect('/books');
   } catch (error) {
-    if (error.name === "SequelizeValidationError") { 
+    if (error.name === "SequelizeValidationError") {
       book = await Book.build(req.body);
-      res.render("new-book", { book, errors: error.errors , title: "New Book" });
+      res.render("form-error", { book, errors: error.errors, title: "New Book" });
     } else {
       throw error; // error caught in the asyncHandler's catch block
     }
@@ -58,7 +53,7 @@ router.get("/books/:id", asyncHandler(async (req, res) => {
   if (book) {
     res.render("update-book", { book, title: book.title });
   } else {
-    res.sendStatus(404);
+    res.render('page-not-found');
   }
 }));
 
@@ -70,16 +65,29 @@ router.post('/books/:id/delete', asyncHandler(async (req, res) => {
     res.redirect("/");
   }
   else {
-    res.sendStatus(404);
+    res.render('page-not-found');
   }
 }));
 
 /* Update an book. */
 router.post('/books/:id', asyncHandler(async (req, res) => {
   let book;
-  book = await Book.findByPk(req.params.id);
-  await book.update(req.body);
-  res.redirect("/books/" + book.id);
+  try {
+    book = await Book.findByPk(req.params.id);
+    if (book) {
+      await book.update(req.body);
+      res.redirect("/books/" + book.id);
+    } else {
+      res.render('page-not-found');
+    }
+  } catch (error) {
+    if (error.name === "SequelizeValidationError") {
+      book = await Book.build(req.body);
+      res.render("form-error", { book, errors: error.errors, title: "Update Book" });
+    } else {
+      throw error; // error caught in the asyncHandler's catch block
+    }
+  }
 }));
 
 module.exports = router;
