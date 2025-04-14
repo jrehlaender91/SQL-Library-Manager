@@ -1,9 +1,10 @@
-extends layout
-
-block content
-
+doctype html
+html
+    head
+        title New Book
+        link(rel='stylesheet' href='/stylesheets/style.css')
+    body
     h1 New Book
-
     form(method="post" action="/books/new")
         ul.error
             each error in errors
