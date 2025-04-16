@@ -17,13 +17,13 @@ function asyncHandler(cb) {
 /* GET books listing. */
 router.get('/', asyncHandler(async (req, res) => {
   const books = await Book.findAll({ order: [["createdAt", "DESC"]] });
-  res.render("index", { books, title: "Sequelize-It!" });
+  res.render("index", { books, title: "Books" });
 }));
 
 /* GET books listing. */
 router.get('/books', asyncHandler(async (req, res) => {
   const books = await Book.findAll({ order: [["createdAt", "DESC"]] });
-  res.render("index", { books, title: "Sequelize-It!" });
+  res.render("index", { books, title: "Books" });
 }));
 
 /* Create a new book form. */
@@ -76,7 +76,7 @@ router.post('/books/:id', asyncHandler(async (req, res) => {
     book = await Book.findByPk(req.params.id);
     if (book) {
       await book.update(req.body);
-      res.redirect("/books/" + book.id);
+      res.redirect("/books/");
     } else {
       res.render('page-not-found');
     }
